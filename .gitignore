@@ -45,6 +45,7 @@ examples
 
 # bins
 ltlfsyn*
+test
 test*
 
 # tmp cnf
