@@ -47,6 +47,7 @@ examples
 ltlfsyn*
 test
 test*
+aiger-mc*
 
 # tmp cnf
 cnf.dimacs*

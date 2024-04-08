@@ -5,22 +5,11 @@ PARSERFILES		=	ltlparser/ltl_formula.c ltlparser/ltllexer.c ltlparser/ltlparser.
 
 UTILFILES		=	util/utility.cpp utility.cpp
 
-SOLVER			=	minisat/core/Solver.cc aaltasolver.cpp solver.cpp carsolver.cpp 
-
-CHECKING		=	ltlfchecker.cpp carchecker.cpp evidence.cpp
-
-SYNTHESIS		=	synthesis.cpp formula_in_bdd.cpp
-
-BDD_LIB			=	deps/CUDD-install/lib/libcudd.a
-
-NEW_FILES		=	edge_cons_env.cpp dfs_search.cpp xy_partition.cpp
+ALLFILES		=	test.cpp $(FORMULAFILES) $(PARSERFILES) $(UTILFILES)
 
 
-ALLFILES		=	main.cpp $(CHECKING) $(SOLVER) $(FORMULAFILES) $(PARSERFILES) $(UTILFILES) $(SYNTHESIS) $(BDD_LIB) $(NEW_FILES)
-
-
-CC	    =   g++ -std=c++11
-FLAG    = -I./  -I./minisat/ -isystem./minisat  -D __STDC_LIMIT_MACROS -D __STDC_FORMAT_MACROS -fpermissive #-fsanitize=address -fno-omit-frame-pointer
+CC	    	=   g++ -std=c++11
+FLAG    	= -I./ -D __STDC_LIMIT_MACROS -D __STDC_FORMAT_MACROS -fpermissive #-fsanitize=address -fno-omit-frame-pointer
 DEBUGFLAG   =	-D DEBUG -g -pg
 RELEASEFLAG = -O3
 
@@ -39,10 +28,10 @@ ltlparser/ltlparser.c :
 .PHONY :    release debug clean
 
 release :   $(ALLFILES)
-	    $(CC) $(FLAG) $(RELEASEFLAG) $(ALLFILES) -lm -lz -o ltlfsyn
+	    $(CC) $(FLAG) $(RELEASEFLAG) $(ALLFILES) -lm -lz -o aiger-mc
 
 debug :	$(ALLFILES)
-	$(CC) $(FLAG) $(DEBUGFLAG) $(ALLFILES) -lm -lz -o ltlfsyn
+	$(CC) $(FLAG) $(DEBUGFLAG) $(ALLFILES) -lm -lz -o aiger-mc
 
 clean :
-	rm -f *.o *~ ltlfsyn
+	rm -f *.o *~ aiger-mc
