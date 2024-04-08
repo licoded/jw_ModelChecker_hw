@@ -25,7 +25,25 @@ int main() {
     std::cout << "Outputs: " << numOutputs << std::endl;
     std::cout << "Latches: " << numLatches << std::endl;
     std::cout << "AND gates: " << numAnds << std::endl;
-    
+
+    // Iterate over the AND gates
+    for (unsigned i = 0; i < circuit->num_ands; ++i) {
+        aiger_and* and_gate = circuit->ands + i;
+        unsigned output_var = and_gate->lhs;
+        unsigned input1_var = and_gate->rhs0;
+        unsigned input2_var = and_gate->rhs1;
+        std::cout << "AND Gate: Output = " << output_var
+                  << ", Inputs = " << input1_var << ", " << input2_var << std::endl;
+    }
+    // BMC
+    for(unsigned i = 0; i<20; i++){
+        for(unsigned j=0; j < circuit->num_ands; j++){
+            aiger_and* and_gate = circuit->ands + j;
+            unsigned output_var = and_gate->lhs;
+            unsigned input1_var = and_gate->rhs0;
+            unsigned input2_var = and_gate->rhs1;
+        }
+    }
     // Cleanup
     aiger_reset(circuit);
     
