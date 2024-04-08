@@ -301,9 +301,7 @@ public:
   void plus(int_prt_map&, af_int_map&, int&, int&, int, std::vector<std::vector<int> >&);
   void minus(int_prt_map&, af_int_map&, int&, int&, int, std::vector<std::vector<int> >&);
   af_prt_set get_prop(std::string, int_prt_map);
-  af_prt_set SAT();  
   aalta_formula* erase_next_global (aalta_formula::af_prt_set&);
-  af_prt_set SAT_core();
           
   bool find (aalta_formula*);          
   aalta_formula* mark_until ();    

@@ -1,11 +1,13 @@
 
-FORMULAFILES	=	formula/aalta_formula.cpp formula/af_utils.cpp formula/olg_formula.cpp formula/olg_item.cpp
+FORMULAFILES	=	formula/aalta_formula.cpp formula/af_utils.cpp
 
 PARSERFILES		=	ltlparser/ltl_formula.c ltlparser/ltllexer.c ltlparser/ltlparser.c ltlparser/trans.c 
 
 UTILFILES		=	util/utility.cpp utility.cpp
 
-ALLFILES		=	test.cpp $(FORMULAFILES) $(PARSERFILES) $(UTILFILES)
+AIGERFILES		=	aiger/aiger.o
+
+ALLFILES		=	test.cpp $(FORMULAFILES) $(PARSERFILES) $(UTILFILES) $(AIGERFILES)
 
 
 CC	    	=   g++ -std=c++11

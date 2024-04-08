@@ -10,16 +10,13 @@
 #include "ltlparser/trans.h"
 
 #include <string.h>
+#include <assert.h>
 #include <algorithm>
 #include <vector>
 #include <iostream>
 #include <fstream>
 #include <zlib.h>
-#include "minisat/core/Dimacs.h"
-#include "minisat/core/Solver.h"
-#include "minisat/core/SolverTypes.h"
 using namespace std;
-using namespace Minisat;
 
 namespace aalta
 {
@@ -2439,44 +2436,6 @@ aalta_formula::print_sat_count ()
   printf ("Total SAT invoking: %d\n", _sat_count);
 }
 
-aalta_formula::af_prt_set 
-aalta_formula::SAT()    //true or false cannot be the input!!!
-{
-  //assert (_op != True);
-  //assert (_op != False);
-  af_prt_set P;
-  
-  //Be careful when the formula is true or false
-  if (_op == True)
-  {
-    P.insert (TRUE ());
-    return P;
-  }
-  if (_op == False)
-    return P;
-  /*
-  aalta_formula* f = erase_next_global (P);
-  if (f != this)
-  {
-    if (f != NULL)
-    {
-      af_prt_set P2 = f->SAT_core ();
-      if (!P2.empty ())
-        P2.insert (P.begin (), P.end ());
-      return P2;
-    }
-    else
-      return P;
-  }
-  else
-    return SAT_core ();
-  */
-  
-  return SAT_core ();
-   
-  
-}
-
 aalta_formula*
 aalta_formula::erase_next_global (aalta_formula::af_prt_set& P)
 {
@@ -2503,94 +2462,6 @@ aalta_formula::erase_next_global (aalta_formula::af_prt_set& P)
       res = aalta_formula (aalta_formula::And, l, r).unique ();
     return res;
   }
-}
-
-aalta_formula::af_prt_set 
-aalta_formula::SAT_core()
-{
-  af_prt_set P;
-  _sat_count ++;
-  int_prt_map prop_map;
-  int var_num;
-  Minisat::Solver S;
-  
-  /*
-  std::vector<std::vector<int> > cls = toDIMACS (prop_map);
-  int var;
-  for (int i = 0; i < cls.size (); i ++)
-  {
-    vec<Lit> lits;
-    for (int j = 0; j < cls[i].size (); j ++)
-    {
-      //printf ("%d ", cls[i][j]);
-      assert (cls[i][j] != 0); 
-      var = abs(cls[i][j])-1;
-      while (var >= S.nVars()) S.newVar();
-      if (cls[i][j] > 0)
-        lits.push (mkLit (var));
-      else
-        lits.push (~mkLit (var));
-    }
-    //printf ("\n");
-    S.addClause_(lits);
-  */
-  
-  
-  int cls[MAX_CL][3];
-  int cls_num = 0;
-  toDIMACS (prop_map, cls, cls_num);
-  
-  //printf ("SAT formula is\n%s\n", to_string().c_str ());
-  
-  int var;
-  for (int i = 0; i < cls_num; i ++)
-  {
-    vec<Lit> lits;
-    for (int j = 0; j < 3; j ++)
-    {
-      //printf ("%d ", cls[i][j]);
-      if (cls[i][j] == 0)   break; 
-      var = abs(cls[i][j])-1;
-      while (var >= S.nVars()) S.newVar();
-      if (cls[i][j] > 0)
-        lits.push (mkLit (var));
-      else
-        lits.push (~mkLit (var));
-    }
-    //printf ("\n");
-    S.addClause_(lits);
-  }
-  
-  
-  if (!S.simplify())
-  {
-    return P;             //false
-  }
-  Minisat::vec<Minisat::Lit> dummy;
-  Minisat::lbool ret;
-  ret = S.solveLimited(dummy);
-  
-  //handle the result from Minisat
-  if(ret == l_True)
-  {
-
-    int_prt_map::iterator it;
-
-    for(int i = 0; i < S.nVars(); i++)
-    {
-      it = prop_map.find (i+1);
-      if(it != prop_map.end())
-      {
-        if(S.model[i] == l_True)
-          P.insert (it->second);
-        else
-          P.insert (aalta_formula (Not, NULL, it->second).unique ());
-      }
-
-    }
-  }
- 
-  return P;
 }
 
 void 
