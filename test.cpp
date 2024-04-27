@@ -6,6 +6,7 @@ extern "C"
 #include "aiger/aiger.h"
 }
 #include "formula/af_utils.h"
+#include "carchecker.h"
 #define BOUND_LEN 20
 using namespace aalta;
 
@@ -67,7 +68,13 @@ void add_latch(aalta_formula *init, aalta_formula *next)
 bool check_SAT(aalta_formula *af)
 {
     // TODO!!!
-    return true;
+    aalta_formula *to_check = af;
+    to_check = to_check->add_tail();
+    to_check = to_check->remove_wnext();
+    to_check = to_check->simplify();
+    to_check = to_check->split_next();
+    CARChecker checker(to_check, false, false);
+    return checker.check();
 }
 
 bool check_valid(aalta_formula *af)
@@ -90,6 +97,8 @@ int main(int argc, char **argv)
     aalta_formula *af;
 	// set tail id to be 1
 	af = aalta_formula::TAIL();
+    aalta_formula::TRUE();
+	aalta_formula::FALSE();
 
     equiv_af_global = aalta_formula::TRUE();
     const char *aigerFile = argv[1];
@@ -167,7 +176,8 @@ int main(int argc, char **argv)
         }
 
         /* check current step BMC */
-        if (!check_valid(rule_af))
+        // af_and(rule_af, equiv_af_global);
+        if (!check_valid(af_imply(equiv_af_global, rule_af)))
         {
             cout << "BMC fails at bound " << bound_step << endl;
             break;
