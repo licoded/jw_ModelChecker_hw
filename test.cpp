@@ -168,8 +168,8 @@ int main(int argc, char **argv)
             add_latch(init_af, next_af);
         }
 
-        if (bound_step == 0) // don't do empty-check
-            continue;
+        // if (bound_step == 0) // don't do empty-check
+        //     continue;
 
         for (unsigned i = 0; i < circuit->num_outputs; i++)
         {
