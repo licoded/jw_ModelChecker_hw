@@ -15,7 +15,7 @@ enum class CIRCUIT_TYPE
     OUTPUT,
 };
 
-aalta_formula *equiv_af_global = aalta_formula::TRUE(); // store the equivalence constraints
+aalta_formula *equiv_af_global; // store the equivalence constraints
 
 unsigned get_lit(aiger *circuit, CIRCUIT_TYPE type, unsigned offset)
 {
@@ -78,8 +78,6 @@ bool check_valid(aalta_formula *af)
 
 int main(int argc, char **argv)
 {
-    cout << "Hello" << endl;
-    return 0;
 
     if (argc < 2)
     {
@@ -87,8 +85,13 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    cout << "usage is ok\t" << argv[1] << endl;
-    
+    // cout << "usage is ok\t" << argv[1] << endl;
+
+    aalta_formula *af;
+	// set tail id to be 1
+	af = aalta_formula::TAIL();
+
+    equiv_af_global = aalta_formula::TRUE();
     const char *aigerFile = argv[1];
 
     // Load AIGER file
