@@ -17,6 +17,7 @@ enum class CIRCUIT_TYPE
 };
 
 aalta_formula *equiv_af_global; // store the equivalence constraints
+vector<pair<aalta_formula*, aalta_formula*>> equiv_vec_global;
 
 unsigned get_lit(aiger *circuit, CIRCUIT_TYPE type, unsigned offset)
 {
@@ -49,6 +50,7 @@ aalta_formula *get_var_af(unsigned var, int i)
 
 void add_equivalence(aalta_formula *lhs, aalta_formula *rhs)
 {
+    equiv_vec_global.push_back(make_pair(lhs, rhs));
     // TODO: change impl to add equivalence cons in Minisat?
     aalta_formula *cur_equiv_af = af_equiv(lhs, rhs);
     equiv_af_global = af_and(equiv_af_global, cur_equiv_af);
@@ -112,22 +114,22 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    // Print circuit information
-    std::cout << "Inputs: " << circuit->num_inputs << std::endl;
-    std::cout << "Outputs: " << circuit->num_outputs << std::endl;
-    std::cout << "Latches: " << circuit->num_latches << std::endl;
-    std::cout << "AND gates: " << circuit->num_ands << std::endl;
+    // // Print circuit information
+    // std::cout << "Inputs: " << circuit->num_inputs << std::endl;
+    // std::cout << "Outputs: " << circuit->num_outputs << std::endl;
+    // std::cout << "Latches: " << circuit->num_latches << std::endl;
+    // std::cout << "AND gates: " << circuit->num_ands << std::endl;
 
-    // Iterate over the AND gates
-    for (unsigned i = 0; i < circuit->num_ands; ++i)
-    {
-        aiger_and *and_gate = circuit->ands + i;
-        unsigned output_var = and_gate->lhs;
-        unsigned input1_var = and_gate->rhs0;
-        unsigned input2_var = and_gate->rhs1;
-        std::cout << "AND Gate: Output = " << output_var
-                  << ", Inputs = " << input1_var << ", " << input2_var << std::endl;
-    }
+    // // Iterate over the AND gates
+    // for (unsigned i = 0; i < circuit->num_ands; ++i)
+    // {
+    //     aiger_and *and_gate = circuit->ands + i;
+    //     unsigned output_var = and_gate->lhs;
+    //     unsigned input1_var = and_gate->rhs0;
+    //     unsigned input2_var = and_gate->rhs1;
+    //     std::cout << "AND Gate: Output = " << output_var
+    //               << ", Inputs = " << input1_var << ", " << input2_var << std::endl;
+    // }
 
     // BMC
     aalta_formula *input_af = aalta_formula::TRUE(); // store the rules
@@ -180,7 +182,11 @@ int main(int argc, char **argv)
 
         /* check current step BMC */
         // af_and(rule_af, equiv_af_global);
-        cout << "\t" << equiv_af_global->to_string() << endl;
+        // cout << "\t" << equiv_af_global->to_string() << endl;
+        for (auto &equiv_pair : equiv_vec_global)
+        {
+            cout << "\t" << equiv_pair.first->to_string() << "\t<->\t" << equiv_pair.second->to_string() << endl;
+        }
         cout << "\t" << input_af->to_string() << endl;
         cout << "\t" << rule_af->to_string() << endl;
 
