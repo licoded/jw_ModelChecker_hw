@@ -13,6 +13,10 @@ bool IsAcc(aalta_formula *predecessor, unordered_set<int> &tmp_edge);
 
 aalta_formula *af_not(aalta_formula *af);
 aalta_formula *af_next(aalta_formula *af);
+aalta_formula *af_and(aalta_formula *af1, aalta_formula *af2);
+aalta_formula *af_or(aalta_formula *af1, aalta_formula *af2);
+aalta_formula *af_imply(aalta_formula *af1, aalta_formula *af2);
+aalta_formula *af_equiv(aalta_formula *af1, aalta_formula *af2);
 
 aalta_formula *af_and_simplify(aalta_formula *af1, aalta_formula *af2);
 aalta_formula *af_or_simplify(aalta_formula *af1, aalta_formula *af2);

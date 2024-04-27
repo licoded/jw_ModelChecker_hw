@@ -178,11 +178,35 @@ aalta_formula *af_wnext(aalta_formula *af)
     return af_res;
 }
 
-aalta_formula *af_and_simplify(aalta_formula *af1, aalta_formula *af2)
+aalta_formula *af_and(aalta_formula *af1, aalta_formula *af2)
 {
-    if (af1 == aalta_formula::TRUE())
-        return af2;
-    if (af2 == aalta_formula::TRUE())
-        return af1;
-    return aalta_formula(aalta_formula::And, af1, af2).unique();
+    aalta_formula *af_res = aalta_formula(aalta_formula::And, af1, af2).unique();
+    return af_res;
 }
+
+aalta_formula *af_or(aalta_formula *af1, aalta_formula *af2)
+{
+    aalta_formula *af_res = aalta_formula(aalta_formula::Or, af1, af2).unique();
+    return af_res;
+}
+
+aalta_formula *af_imply(aalta_formula *af1, aalta_formula *af2)
+{
+    aalta_formula *af_res = af_or(af_not(af1), af2);
+    return af_res;
+}
+
+aalta_formula *af_equiv(aalta_formula *af1, aalta_formula *af2)
+{
+    aalta_formula *af_res = af_and(af_imply(af1, af2), af_imply(af2, af1));
+    return af_res;
+}
+
+// aalta_formula *af_and_simplify(aalta_formula *af1, aalta_formula *af2)
+// {
+//     if (af1 == aalta_formula::TRUE())
+//         return af2;
+//     if (af2 == aalta_formula::TRUE())
+//         return af1;
+//     return aalta_formula(aalta_formula::And, af1, af2).unique();
+// }

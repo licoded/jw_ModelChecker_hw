@@ -15,6 +15,8 @@ enum class CIRCUIT_TYPE
     OUTPUT,
 };
 
+aalta_formula *equiv_af_global = aalta_formula::TRUE(); // store the equivalence constraints
+
 unsigned get_lit(aiger *circuit, CIRCUIT_TYPE type, unsigned offset)
 {
     switch (type)
@@ -46,22 +48,23 @@ aalta_formula *get_var_af(unsigned var, int i)
 
 void add_equivalence(aalta_formula *lhs, aalta_formula *rhs)
 {
-    // Minisat lit or aalta_formula ???
+    // TODO: change impl to add equivalence cons in Minisat?
+    aalta_formula *cur_equiv_af = af_equiv(lhs, rhs);
+    equiv_af_global = af_and(equiv_af_global, cur_equiv_af);
 }
 
 void add_and_gate(aalta_formula *lhs, aalta_formula *rhs0, aalta_formula *rhs1)
 {
-    aalta_formula *and_rhs_af = aalta_formula(aalta_formula::And, rhs0, rhs1).unique();
-    add_equivalence(lhs, and_rhs_af);
+    add_equivalence(lhs, af_and(rhs0, rhs1));
 }
 
 void add_latch(aalta_formula *init, aalta_formula *next)
 {
-    aalta_formula *next_rhs_af = aalta_formula(aalta_formula::Next, NULL, next).unique();
-    add_equivalence(init, next_rhs_af);
+    // TODO: change next to wnext?
+    add_equivalence(init, af_next(next));
 }
 
-bool check_SAT(aalta_formula *af);
+bool check_SAT(aalta_formula *af);  // TODO!!!
 bool check_valid(aalta_formula *af)
 {
     aalta_formula *not_af = af_not(af);
@@ -106,7 +109,7 @@ int main()
         aalta_formula *latch_af = get_var_af(lit, 0);
 
         // initial vals(all zeros) of latch_var are fixed inputs of our circuit model
-        input_af = aalta_formula(aalta_formula::And, input_af, af_not(latch_af)).unique();
+        input_af = af_and(input_af, af_not(latch_af));
     }
     
     // TODO: add even and odd id var equivalence constraints
@@ -120,7 +123,7 @@ int main()
             aalta_formula *output_af = get_var_af(lit, 0);
 
             // rule: vals of outputs are zeros forever
-            rule_af = aalta_formula(aalta_formula::And, rule_af, af_not(output_af)).unique();
+            rule_af = af_and(rule_af, af_not(output_af));
         }
 
         for (unsigned i = 0; i < circuit->num_ands; i++)
