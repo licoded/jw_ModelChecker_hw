@@ -35,15 +35,15 @@ unsigned get_lit(aiger *circuit, CIRCUIT_TYPE type, unsigned offset)
     }
 }
 
-const char *get_var_name(unsigned var, int i)
+string get_var_name(unsigned var, int i)
 {
-    string s = to_string(var) + "_" + to_string(0);
-    return s.c_str();
+    string s = "p" + to_string(var) + "_" + to_string(0);
+    return s;
 }
 
 aalta_formula *get_var_af(unsigned var, int i)
 {
-    return aalta_formula(get_var_name(var, i)).unique();
+    return aalta_formula(get_var_name(var, i).c_str()).unique();
 }
 
 void add_equivalence(aalta_formula *lhs, aalta_formula *rhs)
