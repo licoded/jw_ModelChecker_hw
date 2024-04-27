@@ -3,7 +3,7 @@
 #include <unordered_map>
 extern "C"
 {
-#include "aiger.h"
+#include "aiger/aiger.h"
 }
 #include "formula/af_utils.h"
 #define BOUND_LEN 20
@@ -64,16 +64,32 @@ void add_latch(aalta_formula *init, aalta_formula *next)
     add_equivalence(init, af_next(next));
 }
 
-bool check_SAT(aalta_formula *af);  // TODO!!!
+bool check_SAT(aalta_formula *af)
+{
+    // TODO!!!
+    return true;
+}
+
 bool check_valid(aalta_formula *af)
 {
     aalta_formula *not_af = af_not(af);
     return !check_SAT(not_af);
 }
 
-int main()
+int main(int argc, char **argv)
 {
-    const char *aigerFile = "example.aag";
+    cout << "Hello" << endl;
+    return 0;
+
+    if (argc < 2)
+    {
+        std::cerr << "Usage: bin_name [AIGER file]" << std::endl;
+        return 1;
+    }
+
+    cout << "usage is ok\t" << argv[1] << endl;
+    
+    const char *aigerFile = argv[1];
 
     // Load AIGER file
     aiger *circuit = aiger_init();
