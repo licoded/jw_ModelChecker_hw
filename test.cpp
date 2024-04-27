@@ -38,7 +38,7 @@ unsigned get_lit(aiger *circuit, CIRCUIT_TYPE type, unsigned offset)
 
 string get_var_name(unsigned var, int i)
 {
-    string s = "p" + to_string(var) + "_" + to_string(0);
+    string s = "p" + to_string(var) + "_" + to_string(i);
     return s;
 }
 
@@ -62,7 +62,7 @@ void add_and_gate(aalta_formula *lhs, aalta_formula *rhs0, aalta_formula *rhs1)
 void add_latch(aalta_formula *init, aalta_formula *next)
 {
     // TODO: change next to wnext?
-    add_equivalence(init, af_next(next));
+    add_equivalence(init, next);
 }
 
 bool check_SAT(aalta_formula *af)
@@ -145,15 +145,6 @@ int main(int argc, char **argv)
     aalta_formula *rule_af = aalta_formula::TRUE();
     for (unsigned bound_step = 0; bound_step < BOUND_LEN; bound_step++)
     {
-        for (unsigned i = 0; i < circuit->num_outputs; i++)
-        {
-            unsigned lit = circuit->outputs[i].lit;
-            aalta_formula *output_af = get_var_af(lit, 0);
-
-            // rule: vals of outputs are zeros forever
-            rule_af = af_and(rule_af, af_not(output_af));
-        }
-
         for (unsigned i = 0; i < circuit->num_ands; i++)
         {
             aiger_and *and_gate = circuit->ands + i;
@@ -170,14 +161,34 @@ int main(int argc, char **argv)
             unsigned init_lit = circuit->latches[i].lit;
             unsigned next_lit = circuit->latches[i].next;
             aalta_formula *init_af = get_var_af(init_lit, bound_step);
-            aalta_formula *next_af = get_var_af(next_lit, bound_step);
+            aalta_formula *next_af = get_var_af(next_lit, bound_step+1);
 
             add_latch(init_af, next_af);
         }
 
+        if (bound_step == 0) // don't do empty-check
+            continue;
+
+        for (unsigned i = 0; i < circuit->num_outputs; i++)
+        {
+            unsigned lit = circuit->outputs[i].lit;
+            aalta_formula *output_af = get_var_af(lit, bound_step);
+
+            // rule: vals of outputs are zeros forever
+            rule_af = af_and(rule_af, af_not(output_af));
+        }
+
         /* check current step BMC */
         // af_and(rule_af, equiv_af_global);
-        if (!check_valid(af_imply(equiv_af_global, rule_af)))
+        cout << "\t" << equiv_af_global->to_string() << endl;
+        cout << "\t" << input_af->to_string() << endl;
+        cout << "\t" << rule_af->to_string() << endl;
+
+        if (check_valid(af_imply(af_and(equiv_af_global, input_af), rule_af)))
+        {
+            cout << "STEP-" << bound_step << " OK!!!" << endl;
+        }
+        else
         {
             cout << "BMC fails at bound " << bound_step << endl;
             break;
