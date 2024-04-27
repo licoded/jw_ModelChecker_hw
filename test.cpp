@@ -16,45 +16,10 @@ enum class CIRCUIT_TYPE
     OUTPUT,
 };
 
+aalta_formula *rule_af;
+aalta_formula *input_af;
 aalta_formula *equiv_af_global; // store the equivalence constraints
 vector<pair<aalta_formula*, aalta_formula*>> equiv_vec_global;
-
-unsigned get_lit(aiger *circuit, CIRCUIT_TYPE type, unsigned offset)
-{
-    switch (type)
-    {
-    case CIRCUIT_TYPE::LATCHE:
-        return circuit->latches[offset].lit;
-        break;
-
-    case CIRCUIT_TYPE::OUTPUT:
-        return circuit->outputs[offset].lit;
-        break;
-    
-    default:
-        cerr << "Unknown circuit type" << endl;
-        exit(0);
-    }
-}
-
-string int2string(int i)    // fill 0, make it keep 2 digits
-{
-    assert(i < 100);
-    if (i < 10)
-        return "0" + to_string(i);
-    return to_string(i);
-}
-
-string get_var_name(unsigned var, int i)
-{
-    string s = "p" + int2string(var) + "_" + int2string(i);
-    return s;
-}
-
-aalta_formula *get_var_af(unsigned var, int i)
-{
-    return aalta_formula(get_var_name(var, i).c_str()).unique();
-}
 
 void add_equivalence(aalta_formula *lhs, aalta_formula *rhs)
 {
@@ -93,6 +58,17 @@ bool check_valid(aalta_formula *af)
     return !check_SAT(not_af);
 }
 
+void print_check_af()
+{
+    // cout << "\t" << equiv_af_global->to_string() << endl;
+    for (auto &equiv_pair : equiv_vec_global)
+    {
+        cout << "\t" << equiv_pair.first->to_string() << "\t<->\t" << equiv_pair.second->to_string() << endl;
+    }
+    cout << "\t" << input_af->to_string() << endl;
+    cout << "\t" << rule_af->to_string() << endl;
+}
+
 int main(int argc, char **argv)
 {
 
@@ -104,46 +80,22 @@ int main(int argc, char **argv)
 
     // cout << "usage is ok\t" << argv[1] << endl;
 
-    aalta_formula *af;
-	// set tail id to be 1
-	af = aalta_formula::TAIL();
-    aalta_formula::TRUE();
-	aalta_formula::FALSE();
-
     equiv_af_global = aalta_formula::TRUE();
-    const char *aigerFile = argv[1];
 
     // Load AIGER file
     aiger *circuit = aiger_init();
-    auto result = aiger_open_and_read_from_file(circuit, aigerFile);
+    auto result = aiger_open_and_read_from_file(circuit, argv[1]);
     if (result != NULL)
     {
         std::cerr << "Failed to read AIGER file: " << aiger_error(circuit) << std::endl;
         return 1;
     }
 
-    // // Print circuit information
-    // std::cout << "Inputs: " << circuit->num_inputs << std::endl;
-    // std::cout << "Outputs: " << circuit->num_outputs << std::endl;
-    // std::cout << "Latches: " << circuit->num_latches << std::endl;
-    // std::cout << "AND gates: " << circuit->num_ands << std::endl;
-
-    // // Iterate over the AND gates
-    // for (unsigned i = 0; i < circuit->num_ands; ++i)
-    // {
-    //     aiger_and *and_gate = circuit->ands + i;
-    //     unsigned output_var = and_gate->lhs;
-    //     unsigned input1_var = and_gate->rhs0;
-    //     unsigned input2_var = and_gate->rhs1;
-    //     std::cout << "AND Gate: Output = " << output_var
-    //               << ", Inputs = " << input1_var << ", " << input2_var << std::endl;
-    // }
-
     // BMC
-    aalta_formula *input_af = aalta_formula::TRUE(); // store the rules
+    input_af = aalta_formula::TRUE(); // store the rules
     for (unsigned j = 0; j < circuit->num_latches; j++)
     {
-        unsigned lit = get_lit(circuit, CIRCUIT_TYPE::LATCHE, j);
+        unsigned lit = circuit->latches[j].lit;
         aalta_formula *latch_af = get_var_af(lit, 0);
 
         // initial vals(all zeros) of latch_var are fixed inputs of our circuit model
@@ -152,7 +104,7 @@ int main(int argc, char **argv)
     
     // TODO: add even and odd id var equivalence constraints
 
-    aalta_formula *rule_af = aalta_formula::TRUE();
+    rule_af = aalta_formula::TRUE();
     for (unsigned bound_step = 0; bound_step < BOUND_LEN; bound_step++)
     {
         for (unsigned i = 0; i < circuit->num_ands; i++)
@@ -189,14 +141,7 @@ int main(int argc, char **argv)
         }
 
         /* check current step BMC */
-        // af_and(rule_af, equiv_af_global);
-        // cout << "\t" << equiv_af_global->to_string() << endl;
-        for (auto &equiv_pair : equiv_vec_global)
-        {
-            cout << "\t" << equiv_pair.first->to_string() << "\t<->\t" << equiv_pair.second->to_string() << endl;
-        }
-        cout << "\t" << input_af->to_string() << endl;
-        cout << "\t" << rule_af->to_string() << endl;
+        print_check_af();
 
         if (check_valid(af_imply(af_and(equiv_af_global, input_af), rule_af)))
         {

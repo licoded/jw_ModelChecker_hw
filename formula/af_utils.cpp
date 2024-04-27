@@ -1,4 +1,14 @@
 #include "af_utils.h"
+#include <assert.h>
+
+void af_init()
+{
+    aalta_formula *af;
+	// set tail id to be 1
+	af = aalta_formula::TAIL();
+    aalta_formula::TRUE();
+	aalta_formula::FALSE();
+}
 
 aalta_formula *xnf(aalta_formula *phi)
 {
@@ -210,3 +220,22 @@ aalta_formula *af_equiv(aalta_formula *af1, aalta_formula *af2)
 //         return af1;
 //     return aalta_formula(aalta_formula::And, af1, af2).unique();
 // }
+
+string int2string(int i)    // fill 0, make it keep 2 digits
+{
+    assert(i < 100);
+    if (i < 10)
+        return "0" + to_string(i);
+    return to_string(i);
+}
+
+string get_var_name(unsigned var, int i)
+{
+    string s = "p" + int2string(var) + "_" + int2string(i);
+    return s;
+}
+
+aalta_formula *get_var_af(unsigned var, int i)
+{
+    return aalta_formula(get_var_name(var, i).c_str()).unique();
+}
