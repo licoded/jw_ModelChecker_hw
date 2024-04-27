@@ -37,9 +37,17 @@ unsigned get_lit(aiger *circuit, CIRCUIT_TYPE type, unsigned offset)
     }
 }
 
+string int2string(int i)    // fill 0, make it keep 2 digits
+{
+    assert(i < 100);
+    if (i < 10)
+        return "0" + to_string(i);
+    return to_string(i);
+}
+
 string get_var_name(unsigned var, int i)
 {
-    string s = "p" + to_string(var) + "_" + to_string(i);
+    string s = "p" + int2string(var) + "_" + int2string(i);
     return s;
 }
 
@@ -192,11 +200,11 @@ int main(int argc, char **argv)
 
         if (check_valid(af_imply(af_and(equiv_af_global, input_af), rule_af)))
         {
-            cout << "STEP-" << bound_step << " OK!!!" << endl;
+            cout << "STEP-" << int2string(bound_step) << " OK!!!" << endl;
         }
         else
         {
-            cout << "BMC fails at bound " << bound_step << endl;
+            cout << "BMC fails at bound " << int2string(bound_step) << endl;
             break;
         }
     }
