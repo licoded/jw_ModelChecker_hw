@@ -30,4 +30,18 @@ int main() {
         std::clog << "UNSAT\n";
         return 1;
     }
+
+    solver.addClause( mkLit(A) );
+
+    sat = solver.solve();
+    if (sat) {
+        std::clog << "SAT\n"
+                  << "Model found:\n";
+        std::clog << "A := " << (solver.modelValue(A) == l_True) << '\n';
+        std::clog << "B := " << (solver.modelValue(B) == l_True) << '\n';
+        std::clog << "C := " << (solver.modelValue(C) == l_True) << '\n';
+    } else {
+        std::clog << "UNSAT\n";
+        return 1;
+    }
 }
